@@ -1,0 +1,10 @@
+# Mercurial
+/.hg/*
+*/.hg/*
+.hgignore
+
+# Local Misc
+tmp/
+
+# Third Party Downloads
+zlib/
