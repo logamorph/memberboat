@@ -8,3 +8,6 @@ tmp/
 
 # Third Party Downloads
 zlib/
+
+# DB Connection
+public_html/config/mysqli_db_config.php

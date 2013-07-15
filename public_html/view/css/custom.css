@@ -15,11 +15,9 @@ body {
 	overflow: auto;
 }
 
-#main-row, #main-row div {
+#main-row, #main-row > div {
 	height: 100%;
 }
-
-#main
 
 #left-col {
 	border-right: 1px solid black;
@@ -27,9 +25,15 @@ body {
 }
 
 #main-col {
-	padding: 0px 10px;
+	padding: 0px;
 	height: 100%;
 	overflow: auto;
+}
+
+#right-col {
+	padding-left: 10px;
+	height: 100%;
+	border-left: 1px solid lightgray;
 }
 
 /*

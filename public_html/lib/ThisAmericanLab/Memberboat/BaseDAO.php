@@ -4,8 +4,34 @@ date_default_timezone_set('America/Chicago');
 
 class BaseDAO {
 	
-	protected	$_mysqli_db;
+	protected	$_pdo_db;
 	protected	$_insert_id;
+	
+	protected	$_table;
+	protected	$_value_object_class;
+	
+  /*******************************************************************/
+
+	public function select($id_value, $column = 'id') {
+		$db = $this->_pdo_db;
+		
+		$params = array(
+			':id_value' => $id_value
+			);
+		
+		$sql = "SELECT * FROM $this->_table
+				WHERE $column = :id_value";
+		
+		if (($stmt = $db->prepare($sql)) instanceof \PDOStatement) {
+			if ($stmt->execute($params)) {
+				$thing = $stmt->fetchObject($this->_value_object_class);
+			} else {
+				var_dump($stmt->errorInfo());
+			}
+		}
+		
+		return $thing;
+	}
 	
   /*******************************************************************/
 	
@@ -60,6 +86,18 @@ class BaseDAO {
 
   //******************************************************************
   // BOILERPLATE
+	
+	public function set_table($name) {
+		$this->_table = $name;
+	}
+
+	public function set_value_object_class($name) {
+		$this->_value_object_class = $name;
+	}
+	
+	public function set_pdo_db(\PDO $db) {
+		$this->_pdo_db = $db;
+	}
 	
 	public function set_mysqli_db(\mysqli $db) {
 		$this->_mysqli_db = $db;

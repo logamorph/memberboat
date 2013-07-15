@@ -1,5 +1,9 @@
 <?php namespace ThisAmericanLab\Memberboat;
 
+/**
+ * ROUTER/DISPATCHER
+ **/
+
 ini_set('display_errors',1);
 error_reporting(E_ALL);
 
@@ -15,15 +19,14 @@ switch($_SERVER['HTTP_HOST']) {
 		break;
 }
 
-require_once dirname(__FILE__).'/config/mysqli_db_config.php';
+require_once dirname(__FILE__).'/config/pdo_db_config.php';
 require_once dirname(__FILE__).'/lib/klein/klein/klein.php';
 // require_once dirname(__FILE__).'/lib/ThisAmericanLab/Memberboat/BaseService.php';
-
 
 // 
 //*********************************************************************
 respond(function ($request, $response, $app) {
-	global $mysqli_db;
+	global $pdo_db;
 	global $URL_PATH;
 	
     // Handle exceptions => flash the message and redirect to the referrer
@@ -36,7 +39,7 @@ respond(function ($request, $response, $app) {
 	
     // The third parameter can be used to share scope and global objects
     $app->URL_PATH = $URL_PATH;
-    $app->db = $mysqli_db;
+    $app->db = $pdo_db;
 
 	$response->URL_PATH = $URL_PATH;
     // $app also can store lazy services, e.g. if you don't want to
@@ -56,15 +59,15 @@ respond($URL_PATH.'/', function ($request, $response) {
 respond('GET', $URL_PATH.'/memberform', function ($request, $response, $app) {
 	
 	// var_dump($app->service);
-	require_once dirname(__FILE__).'/lib/ThisAmericanLab/Memberboat/BaseService.php';
+	// require_once dirname(__FILE__).'/lib/ThisAmericanLab/Memberboat/BaseService.php';
 	//use ThisAmericanLab\MemberBoat\BaseService as BaseService;
 	
-	$controller = new BaseService();
-	$controller->name = 'some controller';
-	var_dump($controller);
+	//$controller = new BaseService();
+	//$controller->name = 'some controller';
+	//var_dump($controller);
 	
 	// controller
-    $response->render('view/memberform.php');
+    $response->render('view/memberform_view.php');
     
 });
 
@@ -79,28 +82,37 @@ respond('POST', $URL_PATH.'/memberform_submit', function ($request, $response, $
 
 
 //*********************************************************************
-respond('GET', $URL_PATH.'/group/[a:urlname]', function ($request, $response, $app) {
-	
+// MEMBER RECORD
+//
+respond('GET', $URL_PATH.'/member/id/[i:id]', function ($request, $response, $app) {
+	require_once dirname(__FILE__).'/lib/ThisAmericanLab/Memberboat/MemberService.php';
+
 	// ********************************************************
 	// CONTROLLER
 	
-	require_once dirname(__FILE__).'/lib/ThisAmericanLab/Memberboat/GroupService.php';
+	$service = new MemberService();
+	$service->set_pdo_db($app->db);
 	
-	$service = new GroupService();
-
-	$group = $service->getByUrlname($request->param('urlname'));
+	$member = $service->getById($request->param('id'));
+	
+	if ($member instanceof Member) {
+	// 	$person_list = $service->getPersonsForMember($member);
+	}
 	
 	// ********************************************************
 	// VIEW
-	$response->group = $group;
-	
-    $response->render('view/memberform_view.php');
-    
+	$response->member = $member;
+	$response->person_list = $person_list;
+
+	$response->render('view/member_view.php');
 });
 
+
+//*********************************************************************
+// GENERAL STATIC PAGES
+//
 respond('GET', $URL_PATH.'/[a:page]', function ($request, $response, $app) {
 	
-	// ToDo: validate a:page, security, etc
 	$view_file = "view/{$request->param('page')}_view.php";
 	if (file_exists($view_file)) {
 		
